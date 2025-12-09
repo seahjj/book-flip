@@ -63,7 +63,7 @@ body {
 .archive-book {
     position: absolute;
     bottom: -30%;
-    left: 5%;
+    left: 20%;
     width: 60%;
     height: 80%;
     cursor: pointer;
@@ -203,6 +203,69 @@ body {
     position: relative;
 }
 
+.flipbook {
+    width: 1200px;
+    height: 800px;
+    margin-top: 2rem;
+    /* 커서 인터랙션을 위한 설정 */
+    cursor: default !important;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    /* 커서 이미지가 제대로 표시되도록 */
+    position: relative;
+}
+
+/* 페이지 넘김 인디케이터 (flipbook 외부 흰 여백에 표시) */
+.page-nav-indicator {
+    position: absolute;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem 2rem;
+    border: none;
+    border-radius: 8px;
+    color: #000000;
+    font-family: "BookkMyungjo", serif;
+    font-size: 1rem;
+    font-weight: 400;
+    opacity: 0;
+    transform: translateY(-50%) scale(0.8);
+    transition: all 0.3s ease;
+    pointer-events: none;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.page-nav-indicator.active {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+    pointer-events: auto;
+}
+
+.page-nav-indicator:hover {
+    background: #333333;
+    transform: translateY(-50%) scale(1.05);
+}
+
+/* .page-nav-prev와 .page-nav-next의 위치는 JavaScript에서 동적으로 설정됩니다 */
+
+.nav-arrow {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.nav-text {
+    font-size: 2rem;
+    font-weight: 400;
+    opacity: 0.9;
+}
+
 .flipbook-header {
     position: absolute;
     top: 2rem;
@@ -235,15 +298,6 @@ body {
     opacity: 0.7;
 }
 
-.flipbook {
-    width: 100vw;
-    height: 60vw;
-    max-width: 1250px;
-    max-height: 750px;
-    aspect-ratio: 5 / 3;
-    margin-top: 5rem;
-}
-
 .flipbook .hard {
     background: #000000 !important;
     color: #fff;
@@ -267,6 +321,20 @@ body {
     align-items: center;
     gap: 10px;
     border: 1px solid rgba(0, 0, 0, 0.11);
+    overflow: hidden;
+    position: relative;
+    /* turn.js 감지 영역이 가장자리에서 작동하도록 */
+    pointer-events: auto;
+    /* turn.js가 정확한 크기를 인식하도록 */
+    width: 100%;
+    height: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 0;
+    /* 페이지 넘김 시 부드러운 렌더링 */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    transform-style: preserve-3d;
 }
 
 .page img {
@@ -289,10 +357,40 @@ body {
     flex-direction: column;
     justify-content: flex-start;
     align-items: flex-start;
-    padding: 2rem 3rem;
+    /* 모서리 안전 영역 확보 - 콘텐츠가 잘리지 않도록 */
+    padding: 2.5rem 4rem;
+    /* 모서리 영역 보호를 위한 추가 여백 */
+    margin: 0;
+    font-size: 1.25rem;
     border: 1px solid rgba(0, 0, 0, 0.11);
     overflow-y: auto;
+    overflow-x: hidden;
+    width: 100%;
     height: 100%;
+    box-sizing: border-box;
+    position: relative;
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    /* turn.js 감지 영역을 방해하지 않도록 */
+    pointer-events: auto;
+    /* turn.js가 정확한 크기를 인식하도록 */
+    min-width: 0;
+    min-height: 0;
+    /* 페이지 넘김 시 콘텐츠 보호 */
+    z-index: 1;
+    /* transform 시 콘텐츠가 부드럽게 */
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    /* 커서 상속 */
+    cursor: inherit !important;
+}
+
+/* 스크롤바 숨기기 (Webkit 브라우저) */
+.flipbook .page-content::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
 }
 
 /* 왼쪽 페이지 (텍스트 중심) */
@@ -302,14 +400,26 @@ body {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    /* 가장자리 감지 영역을 확보하기 위한 여백 */
+    margin: 0;
+    padding: 0;
+    /* 모서리 영역 보호 */
+    contain: layout style paint;
 }
 
 .page-title-section {
     margin-bottom: 1rem;
+    /* 모서리에서 잘리지 않도록 */
+    position: relative;
+    z-index: 2;
 }
 
 .page-main-title {
-    font-size: 4rem;
+    font-size: clamp(2.5rem, 8vw, 6rem);
     font-weight: 700;
     color: #fff;
     margin: 0;
@@ -343,6 +453,20 @@ body {
 
 .speaker-icon {
     font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    padding: 0.2rem;
+    border-radius: 4px;
+}
+
+.speaker-icon:hover {
+    opacity: 0.7;
+    transform: scale(1.1);
+}
+
+.speaker-icon:active {
+    transform: scale(0.95);
 }
 
 .page-code {
@@ -352,43 +476,24 @@ body {
     margin-left: auto;
 }
 
-.page-number-section {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin: 1rem 0;
-}
-
 .page-number-box {
     width: 60px;
     height: 60px;
     background: #fff;
     color: #000;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     font-size: 2rem;
     font-weight: 700;
     border: 2px solid #fff;
     font-family: "BookkMyungjo", serif;
+    float: left;
+    margin-right: 1rem;
+    margin-bottom: 0.5rem;
+    flex-shrink: 0;
 }
 
-.audio-button {
-    background: transparent;
-    border: 1px solid #fff;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    font-family: "BookkMyungjo", serif;
-    font-weight: 400;
-}
-
-.audio-button:hover {
-    background: #fff;
-    color: #000;
-}
 
 .page-content-text {
     margin-top: 1rem;
@@ -398,16 +503,46 @@ body {
     font-weight: 400;
     font-family: "BookkMyungjo", serif;
     letter-spacing: 0.01em;
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    min-height: 0;
+    /* 스크롤바 숨기기 */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+}
+
+.page-content-text {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+}
+
+.page-content-text::-webkit-scrollbar {
+    display: none;
 }
 
 .page-content-text p {
     margin: 0;
     text-align: justify;
+    overflow: hidden; /* float된 요소를 감싸기 위해 */
+    /* 모서리 안전 영역 */
+    padding-right: 0.5rem; /* 오른쪽 모서리 보호 */
+    position: relative;
+    z-index: 1;
+}
+
+/* 참고자료와 이미지가 붙어 있도록 마진 제거 */
+.page-references {
+    margin-top: 0.5rem;
+    padding-top: 0.5rem;
 }
 
 .page-references {
     margin-top: 2rem;
     padding-top: 1.5rem;
+    padding-bottom: 1.5rem;
+
     border-top: 1px solid rgba(255, 255, 255, 0.2);
 }
 
@@ -445,9 +580,26 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: center;
     gap: 1.5rem;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+    z-index: 1;
+    /* 가장자리 감지 영역을 확보하기 위한 여백 */
+    margin: 0;
+    padding: 0;
+    /* 모서리 영역 보호 */
+    contain: layout style paint;
+}
+
+/* 오른쪽 페이지의 참조 섹션 스타일 */
+.archive-page-right .page-references {
+    width: 100%;
+    padding: 1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    margin-top: auto;
 }
 
 .page-image-section {
@@ -466,21 +618,6 @@ body {
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }
 
-.page-image-caption {
-    width: 100%;
-    padding: 1rem 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.page-image-caption p {
-    font-size: 0.95rem;
-    line-height: 1.6;
-    color: #fff;
-    margin: 0;
-    text-align: justify;
-    font-weight: 400;
-    font-family: "BookkMyungjo", serif;
-}
 
 
 /* 애니메이션 */

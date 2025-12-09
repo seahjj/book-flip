@@ -132,20 +132,283 @@ $(document).ready(function() {
         // 데이터 기반으로 페이지 생성
         renderPagesFromData();
         
+        // 페이지가 완전히 렌더링될 때까지 대기
         setTimeout(function() {
-            $(".flipbook").turn({
-                width: 1000,
-                height: 600,
+            const $flipbook = $(".flipbook");
+            
+            // CSS vw 기반 크기를 실제 픽셀 값으로 계산
+            // CSS: width: 90vw, height: 60vw
+            const viewportWidth = $(window).width();
+            
+            // vw 기반 계산 (90vw, 60vw)
+            let flipbookWidth = viewportWidth * 0.9;
+            let flipbookHeight = viewportWidth * 0.6; // width 기준으로 비율 유지
+            
+            // 최대 크기 제한 (CSS max-width, max-height와 동일)
+            flipbookWidth = Math.min(flipbookWidth, 1400);
+            flipbookHeight = Math.min(flipbookHeight, 900);
+            
+            // cornerSize를 적절히 설정 (너무 크면 콘텐츠가 잘림)
+            // 모서리 감지 영역은 작게, 콘텐츠 보호를 위해
+            const cornerSize = Math.min(flipbookWidth * 0.12, flipbookHeight * 0.12, 120);
+            
+            // 커서 이미지 경로 설정 (images 폴더에 위치)
+            const cursorConfig = {
+                flipBase: 'images/flip-cursor.png', // 기본 flip 커서 (선택사항)
+                flipNext: 'images/flip-next.png',  // 앞으로 넘기기 커서
+                flipPrev: 'images/flip-prev.png'   // 뒤로 넘기기 커서
+            };
+            
+            // turn.js 초기화 (CSS는 vw로 유지, turn.js에는 px 값 전달)
+            $flipbook.turn({
+                width: flipbookWidth,
+                height: flipbookHeight,
                 autoCenter: true,
                 gradients: true,
-                elevation: 50,
+                elevation: 30, // elevation을 낮춰서 덜 들리도록
+                cornerSize: cornerSize, // 페이지 크기에 비례한 감지 영역
+                turnCorners: 'all', // 모든 모서리에서 페이지 넘김 가능
+                duration: 700, // 애니메이션 속도 조정
                 when: {
                     turning: function(event, page, view) {
-                        // 페이지 넘김 효과
+                        // 페이지 넘김 중 콘텐츠 보호
+                        const $turningPage = $(view[0]);
+                        if ($turningPage.length) {
+                            $turningPage.find('.page-content').css({
+                                'overflow': 'hidden',
+                                'pointer-events': 'none'
+                            });
+                        }
+                    },
+                    turned: function(event, page, view) {
+                        // 페이지 넘김 완료 후 원래대로
+                        $('.flipbook .page-content').css({
+                            'overflow': '',
+                            'pointer-events': ''
+                        });
                     }
                 }
             });
-        }, 300);
+            
+            // 기본 드래그 인터랙션 비활성화
+            $flipbook.turn('disable', true);
+            
+            // 커서 기반 클릭 인터랙션 설정
+            setupCursorInteraction($flipbook, cornerSize, cursorConfig);
+            
+            // 윈도우 리사이즈 시 크기 업데이트
+            let resizeTimer;
+            $(window).off('resize.flipbook').on('resize.flipbook', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    const $flipbook = $(".flipbook");
+                    const newViewportWidth = $(window).width();
+                    let newWidth = newViewportWidth * 0.9;
+                    let newHeight = newViewportWidth * 0.6;
+                    
+                    newWidth = Math.min(newWidth, 1400);
+                    newHeight = Math.min(newHeight, 900);
+                    
+                    if ($flipbook.data('turn')) {
+                        $flipbook.turn('size', newWidth, newHeight);
+                    }
+                }, 250);
+            });
+        }, 500); // 렌더링 대기 시간 증가
+    }
+
+    // 페이지 넘김 인디케이터 설정
+    function setupCursorInteraction($flipbook, cornerSize, cursorConfig) {
+        let hoveredArea = null; // 'left' 또는 'right'
+        
+        // 커서 이미지 경로 (선택사항 - 나중에 사용 가능)
+        const cursorImages = {
+            flipNext: cursorConfig.flipNext || null,
+            flipPrev: cursorConfig.flipPrev || null
+        };
+        
+        // 페이지 넘김 인디케이터 생성 (flipbook 외부에 배치)
+        const $prevIndicator = $('<div class="page-nav-indicator page-nav-prev"><span class="nav-text">이전</span></div>');
+        const $nextIndicator = $('<div class="page-nav-indicator page-nav-next"><span class="nav-text">다음</span></div>');
+        
+        // flipbook-page에 인디케이터 추가 (flipbook 외부)
+        const $flipbookPage = $('#flipbook-page');
+        $flipbookPage.append($prevIndicator, $nextIndicator);
+        
+        // 인디케이터 숨기기
+        function hideIndicators() {
+            $prevIndicator.removeClass('active');
+            $nextIndicator.removeClass('active');
+        }
+        
+        // 인디케이터 표시
+        function showIndicator(type) {
+            hideIndicators();
+            if (type === 'prev') {
+                $prevIndicator.addClass('active');
+            } else if (type === 'next') {
+                $nextIndicator.addClass('active');
+            }
+        }
+        
+        // 인디케이터 위치 업데이트 함수
+        function updateIndicatorPosition() {
+            const $flipbook = $('.flipbook');
+            const flipbookOffset = $flipbook.offset();
+            const flipbookWidth = $flipbook.outerWidth();
+            const flipbookHeight = $flipbook.outerHeight();
+            const flipbookTop = flipbookOffset.top;
+            const flipbookLeft = flipbookOffset.left;
+            
+            // 왼쪽 인디케이터: flipbook 왼쪽 외부
+            $prevIndicator.css({
+                left: '5%',
+                top: '50%',
+                transform: 'translateY(-50%)'
+            });
+            
+            // 오른쪽 인디케이터: flipbook 오른쪽 외부
+            $nextIndicator.css({
+                left: '90%',
+                top: '50%',
+                transform: 'translateY(-50%)'
+            });
+        }
+        
+        // 초기 위치 설정 및 리사이즈 시 업데이트
+        setTimeout(updateIndicatorPosition, 100);
+        $(window).on('resize', updateIndicatorPosition);
+        
+        // 마우스 이동 이벤트로 페이지 영역 감지 (좌우 절반)
+        $flipbook.on('mousemove.cursor', function(e) {
+            e.stopPropagation();
+            const offset = $flipbook.offset();
+            const x = e.pageX - offset.left;
+            const width = $flipbook.width();
+            
+            // 현재 페이지 확인
+            const currentPage = $flipbook.turn('page');
+            const totalPages = $flipbook.turn('pages');
+            
+            // 페이지를 좌우로 나눔
+            const halfWidth = width / 2;
+            let detectedArea = null;
+            
+            // 왼쪽 절반 (이전 페이지)
+            if (x < halfWidth && currentPage > 1) {
+                detectedArea = 'left';
+            }
+            // 오른쪽 절반 (다음 페이지)
+            else if (x >= halfWidth && currentPage < totalPages) {
+                detectedArea = 'right';
+            }
+            
+            // 인디케이터 표시/숨김 및 커서 변경
+            if (detectedArea) {
+                if (hoveredArea !== detectedArea) {
+                    hoveredArea = detectedArea;
+                    // 인디케이터 표시
+                    if (detectedArea === 'left') {
+                        showIndicator('prev');
+                    } else if (detectedArea === 'right') {
+                        showIndicator('next');
+                    }
+                    // 커서 변경 (이미지가 있으면 이미지 사용, 없으면 pointer)
+                    let cursorValue = 'pointer';
+                    
+                    // 커서 이미지가 있고 로드되었으면 사용
+                    if (detectedArea === 'left' && cursorImages.flipPrev) {
+                        cursorValue = 'url("' + cursorImages.flipPrev + '"), pointer';
+                    } else if (detectedArea === 'right' && cursorImages.flipNext) {
+                        cursorValue = 'url("' + cursorImages.flipNext + '"), pointer';
+                    }
+                    
+                    $flipbook.css('cursor', cursorValue);
+                    $flipbook.find('*').css('cursor', cursorValue);
+                    $('body').css('cursor', cursorValue);
+                }
+            } else {
+                if (hoveredArea !== null) {
+                    hoveredArea = null;
+                    hideIndicators();
+                    // 커서를 기본값으로 복원
+                    $flipbook.css('cursor', 'default');
+                    $flipbook.find('*').css('cursor', '');
+                    $('body').css('cursor', 'default');
+                }
+            }
+        });
+        
+        // 마우스가 flipbook 영역을 벗어날 때
+        $flipbook.on('mouseleave.cursor', function() {
+            hoveredArea = null;
+            hideIndicators();
+            // 커서를 기본값으로 복원
+            $flipbook.css('cursor', 'default');
+            $flipbook.find('*').css('cursor', '');
+            $('body').css('cursor', 'default');
+        });
+        
+        // 인디케이터 클릭 이벤트
+        $prevIndicator.on('click', function(e) {
+            e.stopPropagation();
+            const currentPage = $flipbook.turn('page');
+            if (currentPage > 1) {
+                $flipbook.turn('disable', false);
+                $flipbook.turn('previous');
+                setTimeout(function() {
+                    $flipbook.turn('disable', true);
+                }, 100);
+            }
+            hideIndicators();
+        });
+        
+        $nextIndicator.on('click', function(e) {
+            e.stopPropagation();
+            const currentPage = $flipbook.turn('page');
+            const totalPages = $flipbook.turn('pages');
+            if (currentPage < totalPages) {
+                $flipbook.turn('disable', false);
+                $flipbook.turn('next');
+                setTimeout(function() {
+                    $flipbook.turn('disable', true);
+                }, 100);
+            }
+            hideIndicators();
+        });
+        
+        // 페이지 영역 클릭 이벤트로 페이지 넘김 (좌우 절반)
+        $flipbook.on('click.cursor', function(e) {
+            if (hoveredArea) {
+                const currentPage = $flipbook.turn('page');
+                const totalPages = $flipbook.turn('pages');
+                
+                // turn.js 활성화
+                $flipbook.turn('disable', false);
+                
+                // 페이지 넘김 방향 결정
+                if (hoveredArea === 'left') {
+                    // 이전 페이지
+                    if (currentPage > 1) {
+                        $flipbook.turn('previous');
+                    }
+                } else if (hoveredArea === 'right') {
+                    // 다음 페이지
+                    if (currentPage < totalPages) {
+                        $flipbook.turn('next');
+                    }
+                }
+                
+                // 페이지 넘김 완료 후 다시 비활성화
+                setTimeout(function() {
+                    $flipbook.turn('disable', true);
+                }, 100);
+                
+                // 인디케이터 숨기기
+                hoveredArea = null;
+                hideIndicators();
+            }
+        });
     }
 
     // 데이터 기반 페이지 렌더링 함수
@@ -155,12 +418,12 @@ $(document).ready(function() {
         // 기존 콘텐츠 페이지 제거 (hard 페이지는 유지)
         $flipbook.find('.page-content').remove();
         
-        // 첫 번째 hard 페이지 다음에 삽입할 위치 찾기
+        // 첫 번째 hard 페이지(앞표지) 바로 다음에 콘텐츠 페이지 삽입
         const $firstHard = $flipbook.find('.hard').first();
-        const $insertAfter = $firstHard.next('.hard');
         
-        // 각 데이터 항목에 대해 페이지 생성
-        Object.values(pageData).forEach(function(data, index) {
+        // 모든 페이지를 먼저 생성
+        const pages = [];
+        Object.values(pageData).forEach(function(data) {
             // 왼쪽 페이지 (텍스트 중심)
             const $leftPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
             $leftPage.append(createLeftPageContent(data));
@@ -169,16 +432,18 @@ $(document).ready(function() {
             const $rightPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
             $rightPage.append(createRightPageContent(data));
             
-            // 첫 번째 항목이면 첫 번째 hard 다음에 삽입
-            if (index === 0) {
-                $insertAfter.after($leftPage);
-                $leftPage.after($rightPage);
-            } else {
-                // 그 외에는 마지막 페이지 뒤에 추가
-                $flipbook.find('.page-content').last().after($leftPage);
-                $leftPage.after($rightPage);
-            }
+            pages.push($leftPage, $rightPage);
         });
+        
+        // 모든 페이지를 첫 번째 하드 커버 바로 다음에 삽입
+        if (pages.length > 0) {
+            $firstHard.after(pages);
+        }
+        
+        // 뒷표지 추가 (기존 뒷표지 제거 후 마지막에 추가)
+        $flipbook.find('.hard').not($firstHard).remove();
+        const $backCover = $('<div class="hard">Thank You <small>~ 아카이브 北</small></div>');
+        $flipbook.append($backCover);
     }
 
     // 왼쪽 페이지 콘텐츠 생성
@@ -189,33 +454,20 @@ $(document).ready(function() {
         const $titleSection = $('<div class="page-title-section"></div>');
         $titleSection.append(`<h1 class="page-main-title">${data.title}</h1>`);
         $titleSection.append(`<h2 class="page-title-kr">${data.titleKr}</h2>`);
-        $titleSection.append(`<div class="page-subtitle">${data.subtitle} <span class="speaker-icon">🔊</span> <span class="page-code">${data.code}</span></div>`);
+        const $speakerIcon = $('<span class="speaker-icon" data-audio="' + data.audioUrl + '">🔊</span>');
+        $titleSection.append(`<div class="page-subtitle">${data.subtitle} </div>`);
+        $titleSection.find('.page-subtitle').append($speakerIcon);
+        $titleSection.find('.page-subtitle').append(`<span class="page-code">${data.code}</span>`);
         $page.append($titleSection);
         
-        // 번호 박스와 음성 버튼
-        const $numberSection = $('<div class="page-number-section"></div>');
-        $numberSection.append(`<div class="page-number-box">${data.number}</div>`);
-        const $audioBtn = $('<button class="audio-button" data-audio="' + data.audioUrl + '">🔊 음성 재생</button>');
-        $numberSection.append($audioBtn);
-        $page.append($numberSection);
-        
-        // 본문 텍스트
+        // 본문 텍스트 (번호 박스를 텍스트와 함께 인라인으로 배치)
         const $contentSection = $('<div class="page-content-text"></div>');
-        $contentSection.append(`<p>${data.content}</p>`);
+        const $numberBox = $('<div class="page-number-box">' + data.number + '</div>');
+        const $contentParagraph = $('<p></p>');
+        $contentParagraph.append($numberBox);
+        $contentParagraph.append(data.content);
+        $contentSection.append($contentParagraph);
         $page.append($contentSection);
-        
-        // 참조 섹션
-        if (data.references && data.references.length > 0) {
-            const $refSection = $('<div class="page-references"></div>');
-            $refSection.append('<div class="ref-label">참조:</div>');
-            const $refList = $('<div class="ref-list"></div>');
-            data.references.forEach(function(ref) {
-                const $refLink = $('<a href="#" class="ref-link" data-slug="' + ref.slug + '">' + ref.text + '</a>');
-                $refList.append($refLink);
-            });
-            $refSection.append($refList);
-            $page.append($refSection);
-        }
         
         return $page;
     }
@@ -231,11 +483,17 @@ $(document).ready(function() {
             $page.append($imageSection);
         }
         
-        // 이미지 하단 텍스트
-        if (data.imageCaption) {
-            const $captionSection = $('<div class="page-image-caption"></div>');
-            $captionSection.append(`<p>${data.imageCaption}</p>`);
-            $page.append($captionSection);
+        // 참조 섹션 (이미지 캡션 자리에 배치)
+        if (data.references && data.references.length > 0) {
+            const $refSection = $('<div class="page-references"></div>');
+            $refSection.append('<div class="ref-label">참조:</div>');
+            const $refList = $('<div class="ref-list"></div>');
+            data.references.forEach(function(ref) {
+                const $refLink = $('<a href="#" class="ref-link" data-slug="' + ref.slug + '">' + ref.text + '</a>');
+                $refList.append($refLink);
+            });
+            $refSection.append($refList);
+            $page.append($refSection);
         }
         
         return $page;
@@ -276,8 +534,8 @@ $(document).ready(function() {
         navigateToPage(slug);
     });
 
-    // 음성 재생 버튼 클릭 이벤트
-    $(document).on('click', '.audio-button', function() {
+    // speaker-icon 클릭 이벤트
+    $(document).on('click', '.speaker-icon', function() {
         const audioUrl = $(this).data('audio');
         if (audioUrl) {
             const audio = new Audio(audioUrl);

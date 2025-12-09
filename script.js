@@ -8,7 +8,7 @@ const pageData = {
         code: '002459B',
         number: 1,
         audioUrl: 'audio/libertas.mp3',
-        content: '기원 후 830년대 — 850년대, 짧은 시간 동안만 관찰되었다. 9세기 경의 인류는 현 인류가 알고 있는 것과 달리 수준 높은 문명 사회를 이루었다. 리베르타스는 그 문명을 짓밟고 지면을 고르게 다진 악마이다. 가축의 모습을 하고 있어 그를 사육하려는 시도가 빈번했으나, 사육에 실패하고 살해 당한 자의 수를 헤아리기 어렵다. 지능 수준은 인간과 비슷하거나 그보다 아래이지만, 낮은 지능에서 비롯되는 무모함을 예측할 수 없어 위험하다. 자아가 약한 다른 악마들을 부리는 능력을 가졌다. 리베르타스의 연인을 먼저 포획한다면, 낮은 확률로 그의 사육에 성공할 수도 있다. 다만 그가 이내 곧 자살할 수 있으므로 주의하며 길들일 것을 명심해야 한다. 리베르타스는 인간을 싫어하는 악마가 아니다. 리베르타스의 아이가 된다면, 그는 흔쾌히 당신을 지키는 검이 될 것이다. 하지만 악마의 방식을 따르는 그를 맹신해서는 위험하다. 거세의 악마 캐스트라티오의 동생이라는 사실이 그의 손위 형제 본인에 의해 밝혀졌다.',
+        content: '기원 후 830년대 — 850년대, 짧은 시간 동안만 관찰되었다. 9세기 경의 인류는 현 인류가 알고 있는 것과 달리 수준 높은 문명 사회를 이루었다. 리베르타스는 그 문명을 짓밟고 지면을 고르게 다진 악마이다. 가축의 모습을 하고 있어 그를 사육하려는 시도가 빈번했으나, 사육에 실패하고 살해 당한 자의 수를 헤아리기 어렵다. 지능 수준은 인간과 비슷하거나 그보다 아래이지만, 낮은 지능에서 비롯되는 무모함을 예측할 수 없어 위험하다. 자아가 약한 다른 악마들을 부리는 능력을 가졌다. 리베르타스의 연인을 먼저 포획한다면, 낮은 확률로 그의 사육에 성공할 수도 있다. 다만 그가 이내 곧 자살할 수 있으므로 주의하며 길들일 것을 명심해야 한다. 리베르타스는 인간을 싫어하는 악마가 아니다. 리베르타스의 아이가 된다면, 그는 흔쾌히 당신을 지키는 검이 될 것이다. 하지만 악마의 방식을 따르는 그를 맹신해서는 위험하다. 거세의 악마 [[캐스트라티오|castratio]]의 동생이라는 사실이 그의 손위 형제 본인에 의해 밝혀졌다.',
         image: 'images/libertas-illustration.png',
         imageCaption: '리베르타스의 연인¹ | 충신의 악마 *fides 피데스* (19B3DA2), 무력의 악마라고도 불리며 그의 전투력을 감당할 수 있는 병기를 찾기 어렵다. 리베르타스의 아이² | 관찰 기록된 결과를 중심으로, 그의 아이가 되었던 인간의 수는 최소 일곱이 넘는다.\n\n캐스트라티오³ | 거세의 악마 castratio 캐스트라티오 (073ACD8).',
         references: [
@@ -144,6 +144,7 @@ const pageData = {
 
 $(document).ready(function() {
     let currentPage = 'archive';
+    let flipbookReady = false; // 플립북 초기화 완료 플래그
 
     // 아카이브 책 클릭 이벤트
     $('#archive-book').on('click', function() {
@@ -215,7 +216,7 @@ $(document).ready(function() {
                             }, 600);
                         }
                     }, delay);
-                    delay += 500; // 각 줄마다 0.5초 간격
+                    delay += 900; // 각 줄마다 0.5초 간격
                 });
             }, 1000); // "Intro..." 제목이 나타난 후 1초 뒤에 줄글 시작
         }, 100);
@@ -286,6 +287,10 @@ $(document).ready(function() {
             
             // 기본 드래그 인터랙션 비활성화
             $flipbook.turn('disable', true);
+            
+            // 플립북 초기화 완료 플래그 설정
+            flipbookReady = true;
+            console.log('플립북 초기화 완료');
             
             // 커서 기반 클릭 인터랙션 설정
             setupCursorInteraction($flipbook, cornerSize, cursorConfig);
@@ -515,19 +520,33 @@ $(document).ready(function() {
         // 첫 번째 hard 페이지(앞표지) 바로 다음에 콘텐츠 페이지 삽입
         const $firstHard = $flipbook.find('.hard').first();
         
-        // 모든 페이지를 먼저 생성
+        // 모든 페이지를 먼저 생성 (number 순서대로 정렬)
         const pages = [];
-        Object.values(pageData).forEach(function(data) {
-            // 왼쪽 페이지 (텍스트 중심)
-            const $leftPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
-            $leftPage.append(createLeftPageContent(data));
-            
-            // 오른쪽 페이지 (이미지 중심)
-            const $rightPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
-            $rightPage.append(createRightPageContent(data));
-            
-            pages.push($leftPage, $rightPage);
+        const sortedData = Object.values(pageData).sort(function(a, b) {
+            return a.number - b.number;
         });
+        
+        console.log('페이지 렌더링 시작, 총 항목 수:', sortedData.length);
+        
+        sortedData.forEach(function(data, index) {
+            try {
+                // 왼쪽 페이지 (텍스트 중심)
+                const $leftPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
+                $leftPage.append(createLeftPageContent(data));
+                
+                // 오른쪽 페이지 (이미지 중심)
+                const $rightPage = $('<div class="page-content" data-slug="' + data.slug + '"></div>');
+                $rightPage.append(createRightPageContent(data));
+                
+                pages.push($leftPage, $rightPage);
+                
+                console.log('페이지 생성:', data.slug, '번호:', data.number, '인덱스:', index);
+            } catch (error) {
+                console.error('페이지 생성 오류:', data.slug, error);
+            }
+        });
+        
+        console.log('생성된 페이지 수:', pages.length);
         
         // 모든 페이지를 첫 번째 하드 커버 바로 다음에 삽입
         if (pages.length > 0) {
@@ -538,6 +557,56 @@ $(document).ready(function() {
         $flipbook.find('.hard').not($firstHard).remove();
         const $backCover = $('<div class="hard">Thank You <small>~ 아카이브 北</small></div>');
         $flipbook.append($backCover);
+        
+        // 디버깅: 렌더링된 페이지 확인
+        console.log('렌더링된 페이지 수:', pages.length, '페이지 slug:', pages.map(function(page) {
+            return $(page).attr('data-slug');
+        }));
+    }
+
+    // 텍스트 내 인라인 링크 처리 함수
+    // 사용법: [[텍스트|slug]] 형식으로 작성
+    // 예: "거세의 악마 [[캐스트라티오|castratio]]의 동생"
+    function processInlineLinks(text) {
+        if (!text) return '';
+        
+        // [[텍스트|slug]] 패턴을 찾아서 링크로 변환
+        const linkPattern = /\[\[([^\]]+)\|([^\]]+)\]\]/g;
+        const parts = [];
+        let lastIndex = 0;
+        let match;
+        
+        while ((match = linkPattern.exec(text)) !== null) {
+            // 링크 이전 텍스트 추가
+            if (match.index > lastIndex) {
+                parts.push(document.createTextNode(text.substring(lastIndex, match.index)));
+            }
+            
+            // 링크 요소 생성
+            const linkText = match[1]; // 표시될 텍스트
+            const linkSlug = match[2]; // 페이지 slug
+            const $link = $('<a href="#" class="inline-link" data-slug="' + linkSlug + '">' + linkText + '</a>');
+            parts.push($link[0]);
+            
+            lastIndex = match.index + match[0].length;
+        }
+        
+        // 남은 텍스트 추가
+        if (lastIndex < text.length) {
+            parts.push(document.createTextNode(text.substring(lastIndex)));
+        }
+        
+        // 부분들을 모두 포함한 jQuery 객체 생성
+        if (parts.length === 0) {
+            return document.createTextNode(text);
+        }
+        
+        const $container = $('<span></span>');
+        parts.forEach(function(part) {
+            $container.append(part);
+        });
+        
+        return $container;
     }
 
     // 왼쪽 페이지 콘텐츠 생성
@@ -559,7 +628,11 @@ $(document).ready(function() {
         const $numberBox = $('<div class="page-number-box">' + data.number + '</div>');
         const $contentParagraph = $('<p></p>');
         $contentParagraph.append($numberBox);
-        $contentParagraph.append(data.content);
+        
+        // 텍스트 내 링크 처리 ([[텍스트|slug]] 형식)
+        const processedContent = processInlineLinks(data.content);
+        $contentParagraph.append(processedContent);
+        
         $contentSection.append($contentParagraph);
         $page.append($contentSection);
         
@@ -580,7 +653,7 @@ $(document).ready(function() {
         // 참조 섹션 (이미지 캡션 자리에 배치)
         if (data.references && data.references.length > 0) {
             const $refSection = $('<div class="page-references"></div>');
-            $refSection.append('<div class="ref-label">참조:</div>');
+            $refSection.append('<div class="ref-label">[연관항목]:</div>');
             const $refList = $('<div class="ref-list"></div>');
             data.references.forEach(function(ref) {
                 const $refLink = $('<a href="#" class="ref-link" data-slug="' + ref.slug + '">' + ref.text + '</a>');
@@ -593,8 +666,167 @@ $(document).ready(function() {
         return $page;
     }
 
+    // 간단한 페이지 이동 함수 (네비게이션용)
+    function goToPageBySlug(slug, retryCount) {
+        retryCount = retryCount || 0;
+        
+        if (!pageData[slug]) {
+            console.error('페이지를 찾을 수 없습니다:', slug);
+            return;
+        }
+        
+        const $flipbook = $('.flipbook');
+        if ($flipbook.length === 0) {
+            console.error('플립북을 찾을 수 없습니다.');
+            return;
+        }
+        
+        // 플립북 초기화 확인 (전역 플래그와 turn.js 모두 확인)
+        if (!flipbookReady) {
+            if (retryCount < 20) {
+                console.log('플립북 초기화 대기 중...', retryCount);
+                setTimeout(function() {
+                    goToPageBySlug(slug, retryCount + 1);
+                }, 300);
+                return;
+            } else {
+                console.error('플립북 초기화 시간 초과. 직접 시도합니다...');
+                // 시간 초과 시에도 시도해봅니다
+            }
+        }
+        
+        // turn.js 메서드가 작동하는지 확인
+        let totalPages = 0;
+        try {
+            totalPages = $flipbook.turn('pages');
+            if (!totalPages || totalPages === 0) {
+                if (retryCount < 20) {
+                    console.log('turn.js 페이지 수를 가져올 수 없습니다. 재시도...', retryCount);
+                    setTimeout(function() {
+                        goToPageBySlug(slug, retryCount + 1);
+                    }, 300);
+                    return;
+                }
+            }
+        } catch (error) {
+            if (retryCount < 20) {
+                console.log('turn.js가 아직 준비되지 않았습니다. 재시도...', retryCount);
+                setTimeout(function() {
+                    goToPageBySlug(slug, retryCount + 1);
+                }, 300);
+                return;
+            } else {
+                console.error('turn.js 초기화 실패:', error);
+                return;
+            }
+        }
+        
+        // pageData에서 number를 가져와서 페이지 번호 계산
+        const targetData = pageData[slug];
+        if (!targetData || !targetData.number) {
+            console.error('페이지 데이터를 찾을 수 없습니다:', slug);
+            return;
+        }
+        
+        // 각 항목은 왼쪽/오른쪽 페이지 두 개로 구성
+        // 앞표지(1페이지) 다음부터 시작하므로:
+        // 항목 1번: 2페이지(왼쪽), 3페이지(오른쪽)
+        // 항목 2번: 4페이지(왼쪽), 5페이지(오른쪽)
+        // 항목 n번: (n-1)*2 + 2 페이지(왼쪽)
+        const pageNumber = (targetData.number - 1) * 2 + 2;
+        
+        // 페이지 번호 유효성 검사
+        if (pageNumber < 1 || pageNumber > totalPages) {
+            console.error('유효하지 않은 페이지 번호:', pageNumber, '전체:', totalPages, '항목번호:', targetData.number);
+            return;
+        }
+        
+        // DOM에서 해당 페이지가 실제로 존재하는지 확인
+        const $targetPage = $flipbook.find('.page-content[data-slug="' + slug + '"]').first();
+        if ($targetPage.length === 0) {
+            console.error('페이지 요소를 찾을 수 없습니다:', slug);
+            const allSlugs = $flipbook.find('.page-content').map(function() {
+                return $(this).attr('data-slug');
+            }).get();
+            console.log('현재 DOM의 모든 페이지 slug:', allSlugs);
+            console.log('pageData의 모든 slug:', Object.keys(pageData));
+            
+            // 페이지가 아직 렌더링되지 않았을 수 있으므로 재시도
+            if (retryCount < 5) {
+                console.log('페이지가 아직 렌더링되지 않았을 수 있습니다. 재시도...', retryCount);
+                setTimeout(function() {
+                    goToPageBySlug(slug, retryCount + 1);
+                }, 500);
+                return;
+            }
+            
+            console.error('페이지를 찾을 수 없어 이동할 수 없습니다.');
+            alert('페이지를 찾을 수 없습니다: ' + targetData.titleKr);
+            return;
+        }
+        
+        // 현재 페이지 확인
+        const currentPage = $flipbook.turn('page');
+        console.log('페이지 이동 시도:', slug, '->', pageNumber, '(현재:', currentPage, ')');
+        
+        if (currentPage === pageNumber) {
+            console.log('이미 해당 페이지에 있습니다.');
+            return;
+        }
+        
+        // turn.js를 일시적으로 활성화
+        $flipbook.turn('disable', false);
+        
+        // 페이지 이동 실행
+        try {
+            // 현재 페이지와 목표 페이지가 멀리 떨어져 있으면 점진적으로 이동
+            // turn.js가 중간 페이지들을 렌더링할 시간을 줍니다
+            const pageDiff = Math.abs(currentPage - pageNumber);
+            
+            if (pageDiff > 4) {
+                console.log('멀리 떨어진 페이지로 점진적 이동:', currentPage, '->', pageNumber);
+                
+                // 중간 페이지로 먼저 이동하여 렌더링 유도
+                const midPage = Math.floor((currentPage + pageNumber) / 2);
+                $flipbook.turn('page', midPage);
+                
+                // 중간 페이지 이동 완료 후 목표 페이지로 이동
+                setTimeout(function() {
+                    $flipbook.turn('page', pageNumber);
+                    console.log('최종 페이지 이동 완료:', pageNumber);
+                    
+                    // 최종 페이지 이동 완료 후 비활성화
+                    setTimeout(function() {
+                        if ($flipbook.data('turn')) {
+                            $flipbook.turn('disable', true);
+                        }
+                    }, 900);
+                }, 800);
+            } else {
+                // 가까운 페이지는 직접 이동
+                $flipbook.turn('page', pageNumber);
+                console.log('페이지 이동 성공:', pageNumber);
+                
+                // 페이지 이동 애니메이션 완료 후 다시 비활성화
+                setTimeout(function() {
+                    if ($flipbook.data('turn')) {
+                        $flipbook.turn('disable', true);
+                    }
+                }, 900);
+            }
+        } catch (error) {
+            console.error('페이지 이동 실패:', error);
+            $flipbook.turn('disable', true);
+            return;
+        }
+    }
+
     // 페이지로 이동하는 함수
-    function navigateToPage(slug) {
+    function navigateToPage(slug, retryCount) {
+        retryCount = retryCount || 0;
+        const maxRetries = 20;
+        
+        // pageData에 해당 slug가 있는지 확인
         if (!pageData[slug]) {
             console.error('페이지를 찾을 수 없습니다:', slug);
             return;
@@ -602,27 +834,129 @@ $(document).ready(function() {
         
         const $flipbook = $('.flipbook');
         
-        // 해당 슬러그를 가진 왼쪽 페이지 찾기
+        // 플립북이 존재하지 않는 경우
+        if ($flipbook.length === 0) {
+            console.error('플립북을 찾을 수 없습니다.');
+            return;
+        }
+        
+        // turn.js가 초기화될 때까지 대기
+        if (!$flipbook.data('turn')) {
+            if (retryCount < maxRetries) {
+                console.log('플립북 초기화 대기 중...', retryCount);
+                setTimeout(function() {
+                    navigateToPage(slug, retryCount + 1);
+                }, 300);
+                return;
+            } else {
+                console.error('플립북 초기화 시간 초과');
+                return;
+            }
+        }
+        
+        // DOM에서 해당 slug를 가진 왼쪽 페이지 직접 찾기
         const $targetPage = $flipbook.find('.page-content[data-slug="' + slug + '"]').first();
         
         if ($targetPage.length === 0) {
             console.error('페이지 요소를 찾을 수 없습니다:', slug);
+            // 모든 페이지 slug 출력하여 디버깅
+            console.log('현재 플립북의 모든 페이지:', $flipbook.find('.page-content').map(function() {
+                return $(this).attr('data-slug');
+            }).get());
             return;
         }
         
-        // 모든 페이지 요소 찾기 (hard 포함)
+        // 플립북의 모든 자식 요소 (hard + page-content) 찾기
         const allPages = $flipbook.children();
         const targetIndex = allPages.index($targetPage);
         
-        if (targetIndex >= 0) {
-            // turn.js의 페이지 번호는 1부터 시작
-            const pageNumber = targetIndex + 1;
+        if (targetIndex < 0) {
+            console.error('페이지 인덱스를 찾을 수 없습니다.');
+            return;
+        }
+        
+        // turn.js 페이지 번호는 1부터 시작
+        const pageNumber = targetIndex + 1;
+        
+        // 전체 페이지 수 확인
+        const totalPages = $flipbook.turn('pages');
+        console.log('전체 페이지 수:', totalPages, '목표 페이지:', pageNumber);
+        
+        if (pageNumber < 1 || pageNumber > totalPages) {
+            console.error('유효하지 않은 페이지 번호:', pageNumber, '전체:', totalPages);
+            return;
+        }
+        
+        // 현재 페이지 확인
+        const currentPage = $flipbook.turn('page');
+        if (currentPage === pageNumber) {
+            console.log('이미 해당 페이지에 있습니다.');
+            return;
+        }
+        
+        console.log('페이지 이동 시도:', slug, '-> 페이지', pageNumber, '(현재:', currentPage, ')');
+        
+        // turn.js를 일시적으로 활성화
+        $flipbook.turn('disable', false);
+        
+        // 페이지 이동 실행
+        try {
+            // 직접 페이지로 이동
             $flipbook.turn('page', pageNumber);
+            console.log('페이지 이동 명령 실행됨:', pageNumber);
+            
+            // 이동이 제대로 되었는지 확인
+            setTimeout(function() {
+                const newPage = $flipbook.turn('page');
+                console.log('이동 후 페이지:', newPage);
+                
+                if (newPage !== pageNumber) {
+                    console.warn('페이지 이동이 제대로 되지 않았습니다. 재시도...');
+                    // 재시도
+                    setTimeout(function() {
+                        $flipbook.turn('disable', false);
+                        $flipbook.turn('page', pageNumber);
+                    }, 200);
+                }
+                
+                // 페이지 이동 애니메이션 완료 후 다시 비활성화
+                setTimeout(function() {
+                    if ($flipbook.data('turn')) {
+                        $flipbook.turn('disable', true);
+                        console.log('플립북 다시 비활성화됨');
+                    }
+                }, 900);
+            }, 100);
+        } catch (error) {
+            console.error('페이지 이동 실패:', error);
+            $flipbook.turn('disable', true);
         }
     }
 
-    // 참조 링크 클릭 이벤트
+    // 참조 링크 클릭 이벤트 (references 배열의 링크)
     $(document).on('click', '.ref-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const $link = $(this);
+        const slug = $link.data('slug');
+        const text = $link.text();
+        
+        console.log('참조 링크 클릭됨:', text, 'slug:', slug);
+        
+        if (!slug) {
+            console.error('slug가 없습니다. data-slug 속성을 확인하세요.');
+            console.log('링크 요소:', $link);
+            return;
+        }
+        
+        // 해당 slug로 페이지 이동
+        console.log('navigateToPage 호출:', slug);
+        navigateToPage(slug);
+    });
+
+    // 인라인 링크 클릭 이벤트 (텍스트 내 링크)
+    $(document).on('click', '.inline-link', function(e) {
         e.preventDefault();
         const slug = $(this).data('slug');
         navigateToPage(slug);
@@ -639,5 +973,6 @@ $(document).ready(function() {
             });
         }
     });
+
 });
 

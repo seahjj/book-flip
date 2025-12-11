@@ -271,26 +271,19 @@ $(document).ready(function() {
             // console.log('[Nav 업데이트] 앞표지 페이지');
         } else {
             // 왼쪽 페이지 번호를 기준으로 계산
+            // turn.js는 스프레드(2페이지씩)로 표시하므로:
+            // - 2-3페이지: 항목 1번 (왼쪽 2, 오른쪽 3)
+            // - 4-5페이지: 항목 2번 (왼쪽 4, 오른쪽 5)
+            // - 홀수/짝수 모두 같은 항목에 속함
             const calculatedNum = (currentPageNum - 2) / 2 + 1;
             const itemNum = Math.floor(calculatedNum);
             
-            // 페이지가 홀수(오른쪽 페이지)인 경우도 고려
-            // 예: 3페이지 = 항목 1번의 오른쪽 페이지 = 항목 1번
-            let finalItemNum = itemNum;
-            if (currentPageNum % 2 === 0) {
-                // 짝수 페이지 = 왼쪽 페이지
-                finalItemNum = itemNum;
-            } else {
-                // 홀수 페이지 = 오른쪽 페이지 (같은 항목)
-                finalItemNum = itemNum;
-            }
+            // console.log('[Nav 업데이트] 계산된 항목 번호:', itemNum, '(페이지:', currentPageNum, ', 계산값:', calculatedNum, ')');
             
-            // console.log('[Nav 업데이트] 계산된 항목 번호:', finalItemNum, '(페이지:', currentPageNum, ', 계산값:', calculatedNum, ')');
-            
-            if (finalItemNum >= 1 && finalItemNum <= 10) {
-                currentItemNumber = finalItemNum;
+            if (itemNum >= 1 && itemNum <= 10) {
+                currentItemNumber = itemNum;
             } else {
-                console.warn('[Nav 업데이트] 유효하지 않은 항목 번호:', finalItemNum);
+                console.warn('[Nav 업데이트] 유효하지 않은 항목 번호:', itemNum);
             }
         }
         
@@ -995,44 +988,34 @@ $(document).ready(function() {
             }
         } catch (e) {
             // turn.js가 아직 초기화되지 않음
+            console.log('[navigateToPage] turn.js 초기화 확인 중...', e);
         }
         
         if (!isReady && !flipbookReady) {
             if (retryCount < maxRetries) {
-                console.log('플립북 초기화 대기 중...', retryCount);
+                console.log('[navigateToPage] 플립북 초기화 대기 중...', retryCount);
                 setTimeout(function() {
                     navigateToPage(slug, retryCount + 1);
                 }, 300);
                 return;
             } else {
-                console.error('플립북 초기화 시간 초과');
-                return;
+                console.error('[navigateToPage] 플립북 초기화 시간 초과, 강제 시도');
+                // 시간 초과 시에도 시도해봅니다
             }
         }
         
-        // DOM에서 해당 slug를 가진 왼쪽 페이지 직접 찾기
-        const $targetPage = $flipbook.find('.page-content[data-slug="' + slug + '"]').first();
+        console.log('[navigateToPage] 페이지 이동 준비 완료, slug:', slug, 'isReady:', isReady, 'flipbookReady:', flipbookReady);
         
-        if ($targetPage.length === 0) {
-            console.error('페이지 요소를 찾을 수 없습니다:', slug);
-            // 모든 페이지 slug 출력하여 디버깅
-            console.log('현재 플립북의 모든 페이지:', $flipbook.find('.page-content').map(function() {
-                return $(this).attr('data-slug');
-            }).get());
+        // pageData에서 해당 slug의 number를 이용하여 페이지 번호 계산
+        const targetData = pageData[slug];
+        if (!targetData || !targetData.number) {
+            console.error('페이지 데이터를 찾을 수 없습니다:', slug);
             return;
         }
         
-        // 플립북의 모든 자식 요소 (hard + page-content) 찾기
-        const allPages = $flipbook.children();
-        const targetIndex = allPages.index($targetPage);
-        
-        if (targetIndex < 0) {
-            console.error('페이지 인덱스를 찾을 수 없습니다.');
-            return;
-        }
-        
-        // turn.js 페이지 번호는 1부터 시작
-        const pageNumber = targetIndex + 1;
+        // 페이지 번호 계산: 앞표지(1페이지) 다음부터 시작
+        // 항목 n번 = (n-1)*2 + 2 페이지(왼쪽)
+        const pageNumber = (targetData.number - 1) * 2 + 2;
         
         // 전체 페이지 수 확인
         const totalPages = $flipbook.turn('pages');
@@ -1229,4 +1212,5 @@ $(document).ready(function() {
     });
 
 });
+
 

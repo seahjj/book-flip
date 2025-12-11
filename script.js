@@ -646,13 +646,33 @@ $(document).ready(function() {
         // 이미지
         if (data.image) {
             const $imageSection = $('<div class="page-image-section"></div>');
-            $imageSection.append(`<img src="${data.image}" alt="${data.title}" class="page-main-image" />`);
+            const $img = $(`<img src="${data.image}" alt="${data.title}" class="page-main-image" />`);
+            
+            // gifUrl이 있으면 클릭 가능하도록 설정
+            if (data.gifUrl) {
+                $img.addClass('clickable-image');
+                $img.attr('data-gif-url', data.gifUrl);
+                $img.css('cursor', 'pointer');
+            }
+            
+            $imageSection.append($img);
             $page.append($imageSection);
         }
         
         // 참조 섹션 (이미지 캡션 자리에 배치)
+        const $refSection = $('<div class="page-references"></div>');
+        
+        // imageCaption 추가
+        if (data.imageCaption) {
+            const $caption = $('<div class="image-caption"></div>');
+            // \n을 <br>로 변환하여 줄바꿈 처리
+            const captionText = data.imageCaption.replace(/\n/g, '<br>');
+            $caption.html(captionText);
+            $refSection.append($caption);
+        }
+        
+        // references 추가
         if (data.references && data.references.length > 0) {
-            const $refSection = $('<div class="page-references"></div>');
             $refSection.append('<div class="ref-label">[연관항목]:</div>');
             const $refList = $('<div class="ref-list"></div>');
             data.references.forEach(function(ref) {
@@ -660,6 +680,10 @@ $(document).ready(function() {
                 $refList.append($refLink);
             });
             $refSection.append($refList);
+        }
+        
+        // imageCaption이나 references가 있으면 섹션 추가
+        if (data.imageCaption || (data.references && data.references.length > 0)) {
             $page.append($refSection);
         }
         
@@ -971,6 +995,77 @@ $(document).ready(function() {
                 console.error('음성 재생 실패:', error);
                 alert('음성 파일을 찾을 수 없습니다.');
             });
+        }
+    });
+
+    // GIF 모달 생성 함수
+    function showGifModal(gifUrl) {
+        // 기존 모달이 있으면 제거
+        $('#gif-modal').remove();
+        
+        // 모달 생성
+        const $modal = $('<div id="gif-modal" class="gif-modal"></div>');
+        const $modalContent = $('<div class="gif-modal-content"></div>');
+        const $closeBtn = $('<button class="gif-modal-close">×</button>');
+        const $gif = $('<img src="' + gifUrl + '" class="gif-modal-image" alt="GIF" />');
+        
+        $modalContent.append($closeBtn);
+        $modalContent.append($gif);
+        $modal.append($modalContent);
+        $('body').append($modal);
+        
+        // 모달 표시
+        setTimeout(function() {
+            $modal.addClass('active');
+        }, 10);
+        
+        // 닫기 버튼 클릭
+        $closeBtn.on('click', function() {
+            closeGifModal();
+        });
+        
+        // 모달 배경 클릭 시 닫기
+        $modal.on('click', function(e) {
+            if ($(e.target).hasClass('gif-modal')) {
+                closeGifModal();
+            }
+        });
+        
+        // ESC 키로 닫기
+        $(document).on('keydown.gifModal', function(e) {
+            if (e.key === 'Escape') {
+                closeGifModal();
+            }
+        });
+    }
+    
+    // GIF 모달 닫기 함수
+    function closeGifModal() {
+        const $modal = $('#gif-modal');
+        $modal.removeClass('active');
+        setTimeout(function() {
+            $modal.remove();
+            $(document).off('keydown.gifModal');
+        }, 300);
+    }
+
+    // 이미지 클릭 이벤트 (GIF 표시)
+    $(document).on('click', '.clickable-image', function() {
+        const gifUrl = $(this).data('gif-url');
+        if (gifUrl) {
+            showGifModal(gifUrl);
+        }
+    });
+
+    // 목차 페이지 링크 클릭 이벤트
+    $(document).on('click', '.toc-link', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const slug = $(this).data('slug');
+        if (slug) {
+            console.log('목차에서 페이지 이동:', slug);
+            goToPageBySlug(slug);
         }
     });
 

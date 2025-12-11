@@ -285,7 +285,6 @@ body {
     position: relative;
 }
 
-
 .flipbook {
     width: 1200px;
     height: 800px;
@@ -634,10 +633,11 @@ body {
     color: rgba(255, 255, 255, 0.7);
     margin-bottom: 0.5rem;
     font-weight: 400;
+    display: none; /* 임시로 숨김 */
 }
 
 .ref-list {
-    display: flex;
+    display: none; /* 임시로 숨김 */
     flex-wrap: wrap;
     gap: 0.8rem;
 }
@@ -653,6 +653,7 @@ body {
     pointer-events: auto !important;
     z-index: 10;
     position: relative;
+    display: none; /* 임시로 숨김 */
 }
 
 .ref-link:hover {
@@ -703,6 +704,89 @@ body {
     margin-top: auto;
 }
 
+.image-caption {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    margin-bottom: 1rem;
+    font-family: "BookkMyungjo", serif;
+    white-space: pre-line;
+}
+
+/* 클릭 가능한 이미지 */
+.clickable-image {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.clickable-image:hover {
+    opacity: 0.9;
+}
+
+/* GIF 모달 */
+.gif-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.gif-modal.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.gif-modal-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.gif-modal-image {
+    max-width: 100%;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.gif-modal-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    font-size: 2.5rem;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    line-height: 1;
+    padding: 0;
+}
+
+.gif-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: rotate(90deg);
+}
+
 .page-image-section {
     width: 100%;
     flex: 1;
@@ -710,11 +794,15 @@ body {
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 .page-main-image {
-    max-width: 90%;
-    max-height: 70%;
+    max-width: 95%;
+    max-height: 85%;
+    width: auto;
+    height: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
 }

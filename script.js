@@ -2,7 +2,7 @@
 const pageData = {
     'libertas': {
         slug: 'libertas',
-        title: 'Libertas',
+        title: 'name_svg/Libertas.svg',
         titleKr: '리베르타스',
         subtitle: ':자유의 악마',
         code: '002459B',
@@ -18,7 +18,7 @@ const pageData = {
     },
     'separatio': {
         slug: 'separatio',
-        title: 'Separatio',
+        title: 'name_svg/Separatio.svg',
         titleKr: '세파라티오',
         subtitle: ':고립의 악마',
         code: '556979A',
@@ -31,7 +31,7 @@ const pageData = {
     },
     'digitus': {
         slug: 'digitus',
-        title: 'Digitus',
+        title: 'name_svg/Digitus.svg',
         titleKr: '디지투스',
         subtitle: ':손가락의 악마',
         code: '3A4061D',
@@ -44,22 +44,22 @@ const pageData = {
     },
     'castratio': {
         slug: 'castratio',
-        title: 'Castratio',
+        title: 'name_svg/Castratio.svg',
         titleKr: '캐스트라티오',
         subtitle: ':거세의 악마',
         code: '073ACD8',
         number: 4,
         audioUrl: 'name_sound/Castratio.mp3',
-        content: '820년대 — 850년대에 활동한 악마이다. 털이 수북한 영장류의 몸에 갈기 없는 사자의 머리를 한 추한 모습을 갖고 있으며, 인간의 언어를 구사할 수 있는 몇 안되는 악마 중 하나이다. 캐스트라티오*는 낫처럼 예리한 신체 기관을 갖고 있다. 이 기관은 인간의 배를 갈라 잉태에 관련한 장기를 적출해 불구로 만든다. 기관의 잔혹한 생김새나 기능과는 달리, 이러한 거세 방법은 그 대代의 개체에게는 큰 위협이 되지 못한다. 다만 그들 후손의 잠재적인 존재 가능성을 지워버릴 뿐이다. 리베르타스⁷에 대한 강한 애착을 보인다. 이 일방적인 애정은 일종의 콤플렉스⁸에서 기인한 것으로 추측된다. 신념이 없는 그는 때때로 자살을 기도할 수 있다. 그에게 삶의 의미를 만들어주는 일을 게을리 해서는 안된다. 캐스트라티오의 체액을 마신 인간은 그의 포효와 함께 지성이 없는 악마로 변화하며, 그의 명에 따르는 병졸이 된다. *리베르타스*와는 달리 평균적인 인간 수준을 능가하는 지능 수준을 가졌으며, 포효를 활용한 지략적인 방법으로 인간을 공격하기도 한다. 정을 기반한 관계에 연연하는 성격으로, 애정은 이 악마를 길들이는 좋은 수단이 된다.',
+        content: '820년대 — 850년대에 활동한 악마이다. 털이 수북한 영장류의 몸에 갈기 없는 사자의 머리를 한 추한 모습을 갖고 있으며, 인간의 언어를 구사할 수 있는 몇 안되는 악마 중 하나이다. 캐스트라티오는 낫처럼 예리한 신체 기관을 갖고 있다. 이 기관은 인간의 배를 갈라 잉태에 관련한 장기를 적출해 불구로 만든다. 기관의 잔혹한 생김새나 기능과는 달리, 이러한 거세 방법은 그 대代의 개체에게는 큰 위협이 되지 못한다. 다만 그들 후손의 잠재적인 존재 가능성을 지워버릴 뿐이다. 리베르타스⁷에 대한 강한 애착을 보인다. 이 일방적인 애정은 일종의 콤플렉스⁸에서 기인한 것으로 추측된다. 신념이 없는 그는 때때로 자살을 기도할 수 있다. 그에게 삶의 의미를 만들어주는 일을 게을리 해서는 안된다. 캐스트라티오의 체액을 마신 인간은 그의 포효와 함께 지성이 없는 악마로 변화하며, 그의 명에 따르는 병졸이 된다. *리베르타스*와는 달리 평균적인 인간 수준을 능가하는 지능 수준을 가졌으며, 포효를 활용한 지략적인 방법으로 인간을 공격하기도 한다. 정을 기반한 관계에 연연하는 성격으로, 애정은 이 악마를 길들이는 좋은 수단이 된다.',
         image: 'images/castratio-illustration.png',
-        imageCaption: '*리베르타스*⁷ | 자유의 악마 Libertas 리베르타스 (002459B), 캐스트라티오의 이복 형제. 콤플렉스⁸ | 캐스트라티오는 그의 아버지, 순응의 악마 conformitas 콘포르미타스를 원망한다. 일종의 파더 콤플렉스.',
+        imageCaption: '리베르타스⁷ | 자유의 악마 Libertas 리베르타스 (002459B), 캐스트라티오의 이복 형제. 콤플렉스⁸ | 캐스트라티오는 그의 아버지, 순응의 악마 conformitas 콘포르미타스를 원망한다. 일종의 파더 콤플렉스.',
         references: [
             { text: '리베르타스', slug: 'libertas' }
         ]
     },
     'victoriae': {
         slug: 'victoriae',
-        title: 'Victoriae',
+        title: 'name_svg/Victoriae.svg',
         titleKr: '빅토리아에',
         subtitle: ':승리의 악마',
         code: '022D3B4',
@@ -72,7 +72,7 @@ const pageData = {
     },
     'inquisitionis': {
         slug: 'inquisitionis',
-        title: 'Inquisitionis',
+        title: 'name_svg/Inquisitionis.svg',
         titleKr: '인퀴시티온스',
         subtitle: ':탐구의 악마',
         code: '014D9BC',
@@ -80,12 +80,12 @@ const pageData = {
         audioUrl: 'name_sound/Inquisitionis.mp3',
         content: '*인퀴시티온스*는 지금으로부터 약 1200년 전, 810년대 — 850년대에 존재했다고 알려진 악마이며, *모나치* ¹⁰가 섬긴 주군이다. 몸집이 크고 위압적이나, 인간과 이성적으로 대화할 줄 아는 유순하고 영민한 악마라고 전해진다. 그의 호기심을 충족하는 이해관계를 제안할 수 있다면, 그는 기꺼이 전장의 지휘자가 될 것이다. 돌처럼 단단한 피부 조직이 서로 마찰 해 갈기를 불태운다. 개인의 안전과 이익보다 대의를 추구하는 성향이 강하다. 정중하고 차분한 목소리로 말하는 그는 자칫 합리주의자처럼 보이지만, 사실 그를 움직이는 것은 합리성이 아니라 탐구에 대한 비이성적 욕망이다. 욕구 해소에 도움이 된다면 아군의 희생을 서슴지 않는다. 전투 중 무리한 작전 속행으로 인해 한 팔을 잃었다. 부상 이후 *모나치*와 *오피춈* ¹¹에게 전투 현장을 일임하고 더욱 지략적인 지휘자가 되었다. 회복 불가능한 상해를 입어 재기할 수 없었으나, *모나치*의 기도¹²가 통해 바람이 된 것으로 알려졌다.',
         image: 'images/inquisitionis-illustration.png',
-        imageCaption: '*모나치* ¹⁰ | 주군의 악마 *monarch 모나치* (CB9B6D2). *오피춈* ¹¹ | 책임의 악마 *officium 오피춈* (DB9C870).기도¹² | 죽음은 악마에게 허락되지 않는다. 따라서 목숨을 잃어 마땅한 상처를 입어도 죽지 아니하고 고통만이 지속된다. 이 때 타자의 진심 어린 염원이 있다면, 고통이 느껴지지 않을 정도로 작은 입자 단위로 흩어져 사라질 수 있다.',
+        imageCaption: '모나치 ¹⁰ | 주군의 악마 monarch 모나치 (CB9B6D2). 오피춈 ¹¹ | 책임의 악마 officium 오피춈 (DB9C870).기도¹² | 죽음은 악마에게 허락되지 않는다. 따라서 목숨을 잃어 마땅한 상처를 입어도 죽지 아니하고 고통만이 지속된다. 이 때 타자의 진심 어린 염원이 있다면, 고통이 느껴지지 않을 정도로 작은 입자 단위로 흩어져 사라질 수 있다.',
         references: []
     },
     'resuscitatio': {
         slug: 'resuscitatio',
-        title: 'Resuscitatio',
+        title: 'name_svg/Resuscitatio.svg',
         titleKr: '레소시타티오',
         subtitle: ':소생의 악마',
         code: '145AD52',
@@ -114,7 +114,7 @@ const pageData = {
     },
     'discrimen': {
         slug: 'discrimen',
-        title: 'Discrimen',
+        title: 'name_svg/Discrimen.svg',
         titleKr: '디스크리밍',
         subtitle: ':선별의 악마',
         code: '01234CD',
@@ -127,7 +127,7 @@ const pageData = {
     },
     'literature': {
         slug: 'literature',
-        title: 'Literature',
+        title: 'name_svg/Literature.svg',
         titleKr: '리트라쵸르',
         subtitle: ':문학의 악마',
         code: '8D70303',
@@ -724,7 +724,18 @@ $(document).ready(function() {
         
         // 큰 제목과 레터링
         const $titleSection = $('<div class="page-title-section"></div>');
-        $titleSection.append(`<h1 class="page-main-title">${data.title}</h1>`);
+        
+        // title이 이미지 파일 경로이면 이미지로 표시, 아니면 텍스트로 표시
+        const imageExtensions = ['.svg', '.png', '.jpg', '.jpeg', '.gif', '.webp'];
+        const isImagePath = data.title && imageExtensions.some(ext => data.title.toLowerCase().endsWith(ext));
+        
+        if (isImagePath) {
+            const $titleImg = $(`<img src="${data.title}" alt="${data.titleKr}" class="page-main-title-image" />`);
+            $titleSection.append($titleImg);
+        } else {
+            $titleSection.append(`<h1 class="page-main-title">${data.title}</h1>`);
+        }
+        
         $titleSection.append(`<h2 class="page-title-kr">${data.titleKr}</h2>`);
         const $speakerIcon = $('<span class="speaker-icon" data-audio="' + data.audioUrl + '">🔊</span>');
         $titleSection.append(`<div class="page-subtitle">${data.subtitle} </div>`);

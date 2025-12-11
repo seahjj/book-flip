@@ -222,8 +222,108 @@ $(document).ready(function() {
         }, 100);
     }
 
+    // 중앙 네비게이션 초기화
+    function initCenterNav() {
+        const $navNumbers = $('#nav-numbers');
+        $navNumbers.empty();
+        
+        // 1-10번까지 번호 버튼 생성
+        for (let i = 1; i <= 10; i++) {
+            const $numberBtn = $('<button class="nav-number-btn" data-number="' + i + '">' + i + '</button>');
+            $navNumbers.append($numberBtn);
+        }
+        
+        // 현재 페이지 업데이트
+        updateNavCurrentPage();
+    }
+
+    // 현재 페이지 번호 업데이트
+    function updateNavCurrentPage() {
+        const $flipbook = $('.flipbook');
+        
+        // turn.js가 초기화되었는지 확인 (try-catch로 안전하게)
+        let currentPageNum;
+        try {
+            currentPageNum = $flipbook.turn('page');
+            if (!currentPageNum || currentPageNum === undefined) {
+                console.log('[Nav 업데이트] 페이지 번호를 가져올 수 없음');
+                return;
+            }
+        } catch (error) {
+            console.log('[Nav 업데이트] turn.js가 초기화되지 않음:', error);
+            return;
+        }
+        console.log('[Nav 업데이트] 현재 turn.js 페이지 번호:', currentPageNum);
+        
+        // turn.js 페이지 번호를 pageData의 number로 변환
+        // turn.js는 스프레드(2페이지씩)로 표시하므로:
+        // - 1페이지: 앞표지
+        // - 2-3페이지: 항목 1번 (왼쪽 2, 오른쪽 3)
+        // - 4-5페이지: 항목 2번 (왼쪽 4, 오른쪽 5)
+        // - ...
+        // turn('page')는 왼쪽 페이지 번호를 반환합니다
+        // 항목 n번의 왼쪽 페이지 = (n-1)*2 + 2
+        // 역변환: number = (currentPageNum - 2) / 2 + 1
+        let currentItemNumber = 0;
+        
+        if (currentPageNum === 1) {
+            currentItemNumber = 0; // 앞표지
+            // console.log('[Nav 업데이트] 앞표지 페이지');
+        } else {
+            // 왼쪽 페이지 번호를 기준으로 계산
+            const calculatedNum = (currentPageNum - 2) / 2 + 1;
+            const itemNum = Math.floor(calculatedNum);
+            
+            // 페이지가 홀수(오른쪽 페이지)인 경우도 고려
+            // 예: 3페이지 = 항목 1번의 오른쪽 페이지 = 항목 1번
+            let finalItemNum = itemNum;
+            if (currentPageNum % 2 === 0) {
+                // 짝수 페이지 = 왼쪽 페이지
+                finalItemNum = itemNum;
+            } else {
+                // 홀수 페이지 = 오른쪽 페이지 (같은 항목)
+                finalItemNum = itemNum;
+            }
+            
+            // console.log('[Nav 업데이트] 계산된 항목 번호:', finalItemNum, '(페이지:', currentPageNum, ', 계산값:', calculatedNum, ')');
+            
+            if (finalItemNum >= 1 && finalItemNum <= 10) {
+                currentItemNumber = finalItemNum;
+            } else {
+                console.warn('[Nav 업데이트] 유효하지 않은 항목 번호:', finalItemNum);
+            }
+        }
+        
+        const $navCurrent = $('.nav-current');
+        if (!$navCurrent.length) {
+            console.error('[Nav 업데이트] .nav-current 요소를 찾을 수 없음');
+            return;
+        }
+        
+        if (currentItemNumber > 0) {
+            $navCurrent.text(currentItemNumber);
+            // console.log('[Nav 업데이트] Nav 번호 업데이트:', currentItemNumber);
+        } else {
+            $navCurrent.text('-');
+            // console.log('[Nav 업데이트] Nav 번호 업데이트: - (앞표지)');
+        }
+        
+        // 번호 버튼 활성화 상태 업데이트
+        $('.nav-number-btn').removeClass('active');
+        if (currentItemNumber > 0) {
+            const $activeBtn = $('.nav-number-btn[data-number="' + currentItemNumber + '"]');
+            if ($activeBtn.length) {
+                $activeBtn.addClass('active');
+                // console.log('[Nav 업데이트] 번호 버튼 활성화:', currentItemNumber);
+            }
+        }
+    }
+
     // 플립북 초기화
     function initFlipbook() {
+        // 중앙 네비게이션 초기화
+        initCenterNav();
+        
         // 데이터 기반으로 페이지 생성
         renderPagesFromData();
         
@@ -274,6 +374,11 @@ $(document).ready(function() {
                                 'pointer-events': 'none'
                             });
                         }
+                        // 페이지 넘기는 중에도 즉시 업데이트 (반응성 향상)
+                        // 약간의 딜레이를 주어 페이지 번호가 확실히 변경된 후 업데이트
+                        setTimeout(function() {
+                            updateNavCurrentPage();
+                        }, 50);
                     },
                     turned: function(event, page, view) {
                         // 페이지 넘김 완료 후 원래대로
@@ -281,6 +386,9 @@ $(document).ready(function() {
                             'overflow': '',
                             'pointer-events': ''
                         });
+                        
+                        // 네비게이션 현재 페이지 업데이트
+                        updateNavCurrentPage();
                     }
                 }
             });
@@ -291,7 +399,10 @@ $(document).ready(function() {
             // 플립북 초기화 완료 플래그 설정
             flipbookReady = true;
             console.log('플립북 초기화 완료');
-            
+
+            // 초기 현재 페이지 표시
+            updateNavCurrentPage();
+
             // 커서 기반 클릭 인터랙션 설정
             setupCursorInteraction($flipbook, cornerSize, cursorConfig);
             
@@ -308,8 +419,10 @@ $(document).ready(function() {
                     newWidth = Math.min(newWidth, 1400);
                     newHeight = Math.min(newHeight, 900);
                     
-                    if ($flipbook.data('turn')) {
+                    try {
                         $flipbook.turn('size', newWidth, newHeight);
+                    } catch (e) {
+                        // turn.js가 아직 초기화되지 않음
                     }
                 }, 250);
             });
@@ -457,7 +570,8 @@ $(document).ready(function() {
                 $flipbook.turn('previous');
                 setTimeout(function() {
                     $flipbook.turn('disable', true);
-                }, 100);
+                    updateNavCurrentPage(); // Nav 업데이트
+                }, 750); // 애니메이션 완료 후
             }
             hideIndicators();
         });
@@ -471,7 +585,8 @@ $(document).ready(function() {
                 $flipbook.turn('next');
                 setTimeout(function() {
                     $flipbook.turn('disable', true);
-                }, 100);
+                    updateNavCurrentPage(); // Nav 업데이트
+                }, 750); // 애니메이션 완료 후
             }
             hideIndicators();
         });
@@ -501,7 +616,8 @@ $(document).ready(function() {
                 // 페이지 넘김 완료 후 다시 비활성화
                 setTimeout(function() {
                     $flipbook.turn('disable', true);
-                }, 100);
+                    updateNavCurrentPage(); // Nav 업데이트
+                }, 750); // 애니메이션 완료 후
                 
                 // 인디케이터 숨기기
                 hoveredArea = null;
@@ -821,8 +937,11 @@ $(document).ready(function() {
                     
                     // 최종 페이지 이동 완료 후 비활성화
                     setTimeout(function() {
-                        if ($flipbook.data('turn')) {
+                        try {
                             $flipbook.turn('disable', true);
+                            updateNavCurrentPage(); // Nav 업데이트
+                        } catch (e) {
+                            // turn.js 오류 무시
                         }
                     }, 900);
                 }, 800);
@@ -833,8 +952,11 @@ $(document).ready(function() {
                 
                 // 페이지 이동 애니메이션 완료 후 다시 비활성화
                 setTimeout(function() {
-                    if ($flipbook.data('turn')) {
+                    try {
                         $flipbook.turn('disable', true);
+                        updateNavCurrentPage(); // Nav 업데이트
+                    } catch (e) {
+                        // turn.js 오류 무시
                     }
                 }, 900);
             }
@@ -864,8 +986,18 @@ $(document).ready(function() {
             return;
         }
         
-        // turn.js가 초기화될 때까지 대기
-        if (!$flipbook.data('turn')) {
+        // turn.js가 초기화될 때까지 대기 (try-catch로 확인)
+        let isReady = false;
+        try {
+            const testPage = $flipbook.turn('page');
+            if (testPage !== undefined && testPage !== null) {
+                isReady = true;
+            }
+        } catch (e) {
+            // turn.js가 아직 초기화되지 않음
+        }
+        
+        if (!isReady && !flipbookReady) {
             if (retryCount < maxRetries) {
                 console.log('플립북 초기화 대기 중...', retryCount);
                 setTimeout(function() {
@@ -945,9 +1077,12 @@ $(document).ready(function() {
                 
                 // 페이지 이동 애니메이션 완료 후 다시 비활성화
                 setTimeout(function() {
-                    if ($flipbook.data('turn')) {
+                    try {
                         $flipbook.turn('disable', true);
                         console.log('플립북 다시 비활성화됨');
+                        updateNavCurrentPage(); // Nav 업데이트
+                    } catch (e) {
+                        // turn.js 오류 무시
                     }
                 }, 900);
             }, 100);
@@ -1054,6 +1189,30 @@ $(document).ready(function() {
         const gifUrl = $(this).data('gif-url');
         if (gifUrl) {
             showGifModal(gifUrl);
+        }
+    });
+
+    // 네비게이션 번호 버튼 클릭 이벤트
+    $(document).on('click', '.nav-number-btn', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const targetNumber = parseInt($(this).data('number'), 10);
+        
+        // pageData에서 해당 number를 가진 slug 찾기
+        let targetSlug = null;
+        for (const slug in pageData) {
+            if (pageData[slug].number === targetNumber) {
+                targetSlug = slug;
+                break;
+            }
+        }
+        
+        if (targetSlug) {
+            console.log('네비게이션에서 페이지 이동:', targetNumber, targetSlug);
+            navigateToPage(targetSlug);
+        } else {
+            console.warn('해당 번호의 페이지를 찾을 수 없습니다:', targetNumber);
         }
     });
 

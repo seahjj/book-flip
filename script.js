@@ -664,7 +664,7 @@ $(document).ready(function() {
         
         // 뒷표지 추가 (기존 뒷표지 제거 후 마지막에 추가)
         $flipbook.find('.hard').not($firstHard).remove();
-        const $backCover = $('<div class="hard">Thank You <small>~ 아카이브 北</small></div>');
+        const $backCover = $('<div class="hard">Thank You <small>~ 아카이브 북</small></div>');
         $flipbook.append($backCover);
         
         // 디버깅: 렌더링된 페이지 확인
@@ -801,7 +801,10 @@ $(document).ready(function() {
 
     // 간단한 페이지 이동 함수 (네비게이션용)
     function goToPageBySlug(slug, retryCount) {
-        retryCount = retryCount || 0;
+        // retryCount가 undefined나 null인 경우에만 0으로 초기화
+        if (retryCount === undefined || retryCount === null) {
+            retryCount = 0;
+        }
         
         if (!pageData[slug]) {
             console.error('페이지를 찾을 수 없습니다:', slug);
@@ -962,7 +965,10 @@ $(document).ready(function() {
 
     // 페이지로 이동하는 함수
     function navigateToPage(slug, retryCount) {
-        retryCount = retryCount || 0;
+        // retryCount가 undefined나 null인 경우에만 0으로 초기화
+        if (retryCount === undefined || retryCount === null) {
+            retryCount = 0;
+        }
         const maxRetries = 20;
         
         // pageData에 해당 slug가 있는지 확인

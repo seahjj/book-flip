@@ -30,9 +30,10 @@
     return { x: a, y: b };
   }
   function E(a, b, c) {
+    // 하드웨어 가속 강제 사용 (이미지 렌더링 최적화)
     return y && c
       ? " translate3d(" + a + "px," + b + "px, 0px) "
-      : " translate(" + a + "px, " + b + "px) ";
+      : " translate3d(" + a + "px, " + b + "px, 0px) ";
   }
   function F(a) {
     return " rotate(" + a + "deg) ";
@@ -1371,7 +1372,14 @@
               Q = b.wrapper.height(),
               D = "t" == a.corner.substr(0, 1),
               B = "l" == a.corner.substr(1, 1),
-              H = function () {
+              H = function (recursionCount) {
+                // 무한 재귀 방지: 최대 7회까지만 재귀 호출
+                recursionCount = recursionCount || 0;
+                if (recursionCount > 7) {
+                  console.warn('turn.js: H 함수 재귀 호출 제한 초과, 계산 중단');
+                  return;
+                }
+                
                 var b = j(0, 0),
                   f = j(0, 0);
                 b.x = d.x ? d.x - a.x : a.x;
@@ -1391,12 +1399,18 @@
                   ((m.x += Math.abs((m.y * b.y) / b.x)),
                   (m.y = 0),
                   Math.round(m.x * Math.tan(J - g)) < h)
-                )
-                  return (
-                    (a.y = Math.sqrt(Math.pow(h, 2) + 2 * f.x * b.x)),
-                    D && (a.y = h - a.y),
-                    H()
-                  );
+                ) {
+                  var prevY = a.y;
+                  a.y = Math.sqrt(Math.pow(h, 2) + 2 * f.x * b.x);
+                  D && (a.y = h - a.y);
+                  
+                  // 값이 변경되지 않으면 재귀 중단 (무한 루프 방지)
+                  if (Math.abs(prevY - a.y) < 0.001 && recursionCount > 0) {
+                    return;
+                  }
+                  
+                  return H(recursionCount + 1);
+                }
                 if (
                   g > K &&
                   ((b = J - g),
@@ -1505,22 +1519,22 @@
             switch (a.corner) {
               case "tl":
                 a.x = Math.max(a.x, 1);
-                H();
+                H(0);
                 f(m, [1, 0, 0, 1], [100, 0], G);
                 break;
               case "tr":
                 a.x = Math.min(a.x, e - 1);
-                H();
+                H(0);
                 f(j(-m.x, m.y), [0, 0, 0, 1], [0, 0], -G);
                 break;
               case "bl":
                 a.x = Math.max(a.x, 1);
-                H();
+                H(0);
                 f(j(m.x, -m.y), [1, 1, 0, 0], [100, 100], -G);
                 break;
               case "br":
                 (a.x = Math.min(a.x, e - 1)),
-                  H(),
+                  H(0),
                   f(j(-m.x, -m.y), [0, 1, 1, 0], [0, 100], G);
             }
         }

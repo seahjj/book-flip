@@ -524,16 +524,27 @@ body {
     box-sizing: border-box;
     min-width: 0;
     min-height: 0;
-    /* 페이지 넘김 시 부드러운 렌더링 */
+    /* 페이지 넘김 시 부드러운 렌더링 - 하드웨어 가속 */
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
     transform-style: preserve-3d;
+    /* GPU 가속을 위한 최적화 */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 .page img {
     width: 70%;
     object-fit: cover;
     margin: auto;
+    /* 이미지 렌더링 최적화 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* 하드웨어 가속 */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
 }
 
 .flipbook .page small {
@@ -649,6 +660,15 @@ body {
     object-position: left center;
     /* 좌측 정렬 강제 */
     align-self: flex-start;
+    /* 이미지 렌더링 최적화 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* 하드웨어 가속 */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* 이미지 디코딩 최적화 */
+    content-visibility: auto;
 }
 
 /* 반응형: 작은 화면에서는 padding이 작아질 수 있으므로 */
@@ -956,6 +976,15 @@ body {
     height: auto;
     object-fit: contain;
     filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+    /* 이미지 렌더링 최적화 */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    /* 하드웨어 가속 */
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    /* 이미지 디코딩 최적화 */
+    content-visibility: auto;
 }
 
 

@@ -630,14 +630,26 @@ body {
 }
 
 .page-main-title-image {
-    max-width: 100%;
+    width: calc(100% + 8rem);
     height: auto;
     max-height: clamp(3rem, 9vw, 7rem);
-    margin: 0;
+    /* 이미지만 좌우로 꽉 차도록 - 부모의 padding을 상쇄 */
+    margin: 0 -4rem;
     display: block;
     object-fit: contain;
     /* 하단 여백은 부모의 gap으로 처리 */
     flex-shrink: 0;
+    /* 이미지가 좌우로 꽉 차도록 */
+    object-position: center;
+}
+
+/* 반응형: 작은 화면에서는 padding이 작아질 수 있으므로 */
+@media (max-width: 768px) {
+    .page-main-title-image {
+        margin-left: calc(-1 * min(4rem, 8vw));
+        margin-right: calc(-1 * min(4rem, 8vw));
+        width: calc(100% + 2 * min(4rem, 8vw));
+    }
 }
 
 .page-title-kr {

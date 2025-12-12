@@ -192,3 +192,7 @@ CSS 3D Transform을 지원하는 모든 브라우저에서 작동합니다.
 ## 라이선스
 
 이 라이브러리는 웹사이트 [sogithehuman.neocities.org](https://sogithehuman.neocities.org/)의 전환 방식을 참고하여 제작되었습니다.
+
+
+
+

@@ -359,14 +359,16 @@ $(document).ready(function() {
                 duration: 700, // 애니메이션 속도 조정
                 when: {
                     turning: function(event, page, view) {
-                        // 페이지 넘김 중 콘텐츠 보호
+                        // 페이지 넘김 중 콘텐츠 보호만 (이미지 최적화 제거 - 레이아웃 안정성 우선)
                         const $turningPage = $(view[0]);
                         if ($turningPage.length) {
-                            $turningPage.find('.page-content').css({
+                            const $pageContent = $turningPage.find('.page-content');
+                            $pageContent.css({
                                 'overflow': 'hidden',
                                 'pointer-events': 'none'
                             });
                         }
+                        
                         // 페이지 넘기는 중에도 즉시 업데이트 (반응성 향상)
                         // 약간의 딜레이를 주어 페이지 번호가 확실히 변경된 후 업데이트
                         setTimeout(function() {
@@ -730,7 +732,14 @@ $(document).ready(function() {
         const isImagePath = data.title && imageExtensions.some(ext => data.title.toLowerCase().endsWith(ext));
         
         if (isImagePath) {
-            const $titleImg = $(`<img src="${data.title}" alt="${data.titleKr}" class="page-main-title-image" />`);
+            // 타이틀 이미지 직접 로드 (lazy loading 제거)
+            const $titleImg = $('<img />', {
+                'class': 'page-main-title-image',
+                'alt': data.titleKr,
+                'src': data.title, // 직접 src 설정
+                'decoding': 'async',
+                'loading': 'eager' // 즉시 로드
+            });
             $titleSection.append($titleImg);
         } else {
             $titleSection.append(`<h1 class="page-main-title">${data.title}</h1>`);
@@ -766,7 +775,14 @@ $(document).ready(function() {
         // 이미지
         if (data.image) {
             const $imageSection = $('<div class="page-image-section"></div>');
-            const $img = $(`<img src="${data.image}" alt="${data.title}" class="page-main-image" />`);
+            // 이미지 직접 로드 (lazy loading 제거 - 페이지 전환 안정성 우선)
+            const $img = $('<img />', {
+                'class': 'page-main-image',
+                'alt': data.title,
+                'src': data.image, // 직접 src 설정
+                'decoding': 'async', // 비동기 디코딩만
+                'loading': 'eager' // 즉시 로드
+            });
             
             // gifUrl이 있으면 클릭 가능하도록 설정
             if (data.gifUrl) {

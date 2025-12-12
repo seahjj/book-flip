@@ -1,0 +1,142 @@
+/* 
+ * Simple 3D Flip Book Styles
+ * Based on sogithehuman.neocities.org flip transition style
+ */
+
+/* Flipbook Container */
+.flipbook {
+  position: relative;
+  margin: 0 auto;
+  transform-style: preserve-3d;
+}
+
+/* Book Container */
+.flipbook-book {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(20deg);
+  transform-origin: center center;
+}
+
+/* Leaves Container */
+.flipbook-leaves {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+/* Individual Leaf (Page) */
+.flipbook-leaf {
+  position: absolute;
+  left: 50%;
+  width: 50%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transition: transform 2s ease-out;
+  cursor: pointer;
+  transform: rotateY(0deg);
+  transform-origin: left center;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.flipbook-leaf.flipped {
+  transform: rotateY(-180deg);
+  transform-origin: left center;
+}
+
+/* Page (Front and Back) */
+.flipbook-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+}
+
+.flipbook-page-front {
+  background: linear-gradient(90deg, #555, #aaa 3%, #fff);
+  transform: rotateY(0deg);
+}
+
+.flipbook-page-back {
+  background: linear-gradient(270deg, #555, #aaa 3%, #fff);
+  transform: rotateY(180deg);
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Page Content */
+.flipbook-page .page-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  padding: 1rem 1.75rem;
+  box-sizing: border-box;
+}
+
+.flipbook-page-front .page-content {
+  padding: 1rem 1rem 1rem 1.75rem;
+}
+
+.flipbook-page-back .page-content {
+  padding: 1rem 1.75rem 1rem 1rem;
+}
+
+/* Responsive */
+@media screen and (max-width: 900px) {
+  .flipbook {
+    perspective: 5000px;
+  }
+  
+  .flipbook-book {
+    transform: rotateX(20deg) scale(0.8);
+  }
+}
+
+@media screen and (max-width: 700px) {
+  .flipbook {
+    perspective: 7000px;
+  }
+  
+  .flipbook-book {
+    transform: rotateX(15deg) scale(0.6);
+  }
+}
+
+@media screen and (max-width: 500px) {
+  .flipbook {
+    perspective: 9000px;
+  }
+  
+  .flipbook-book {
+    transform: rotateX(10deg) scale(0.4);
+  }
+}
+
+/* Hard Cover Pages */
+.flipbook-page.hard {
+  background: #000 !important;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* Disable pointer events during animation */
+.flipbook.animating .flipbook-leaf {
+  pointer-events: none;
+}

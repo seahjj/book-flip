@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple 3D Flip Book - Example</title>
+    <link rel="stylesheet" href="turn-simple.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #0c209e;
+            font-family: 'Gothic A1', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .flipbook {
+            width: 600px;
+            height: 600px;
+        }
+
+        .page-content {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .page-content h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .page-content p {
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .controls button:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+    </style>
+</head>
+<body>
+    <div class="flipbook" id="myFlipbook">
+        <!-- Page 1 -->
+        <div class="page">
+            <div class="page-content">
+                <h1>페이지 1</h1>
+                <p>첫 번째 페이지입니다.</p>
+            </div>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="page">
+            <div class="page-content">
+                <h1>페이지 2</h1>
+                <p>두 번째 페이지입니다.</p>
+            </div>
+        </div>
+
+        <!-- Page 3 -->
+        <div class="page">
+            <div class="page-content">
+                <h1>페이지 3</h1>
+                <p>세 번째 페이지입니다.</p>
+            </div>
+        </div>
+
+        <!-- Page 4 -->
+        <div class="page">
+            <div class="page-content">
+                <h1>페이지 4</h1>
+                <p>네 번째 페이지입니다.</p>
+            </div>
+        </div>
+
+        <!-- Page 5 -->
+        <div class="page">
+            <div class="page-content">
+                <h1>페이지 5</h1>
+                <p>다섯 번째 페이지입니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button id="prevBtn">이전</button>
+        <button id="nextBtn">다음</button>
+        <button id="pageBtn">페이지 3으로</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="turn-simple.js"></script>
+    <script>
+        $(document).ready(function() {
+            // 플립북 초기화
+            $('#myFlipbook').flipbook({
+                width: 600,
+                height: 600,
+                duration: 2000, // 2초 전환
+                easing: 'ease-out',
+                perspective: 3000,
+                autoCenter: true,
+                when: {
+                    ready: function() {
+                        console.log('플립북 준비 완료');
+                    },
+                    turning: function(event, page) {
+                        console.log('페이지 넘기는 중:', page);
+                    },
+                    turned: function(event, page) {
+                        console.log('페이지 넘김 완료:', page);
+                    }
+                }
+            });
+
+            // 컨트롤 버튼
+            $('#prevBtn').on('click', function() {
+                $('#myFlipbook').flipbook('previous');
+            });
+
+            $('#nextBtn').on('click', function() {
+                $('#myFlipbook').flipbook('next');
+            });
+
+            $('#pageBtn').on('click', function() {
+                $('#myFlipbook').flipbook('page', 3);
+            });
+        });
+    </script>
+</body>
+</html>

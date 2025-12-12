@@ -552,6 +552,8 @@ body {
     align-items: flex-start;
     /* 모서리 안전 영역 확보 - 콘텐츠가 잘리지 않도록 */
     padding: 2.5rem 4rem;
+    /* 이미지가 잘리지 않도록 overflow 허용 */
+    overflow-x: visible;
     /* 모서리 영역 보호를 위한 추가 여백 */
     margin: 0;
     font-size: 1.25rem;
@@ -612,8 +614,11 @@ body {
     /* 마진 병합 방지 및 레이아웃 제어 */
     display: flex;
     flex-direction: column;
+    align-items: flex-start; /* 좌측 정렬 */
     /* 이미지와 다음 요소 사이 간격 확보 */
     gap: 1.3rem; /* 약 10px */
+    /* 이미지가 잘리지 않도록 */
+    overflow-x: visible;
 }
 
 .page-main-title {
@@ -630,25 +635,29 @@ body {
 }
 
 .page-main-title-image {
-    width: calc(100% + 8rem);
+    width: 100%;
     height: auto;
-    max-height: clamp(3rem, 9vw, 7rem);
-    /* 이미지만 좌우로 꽉 차도록 - 부모의 padding을 상쇄 */
-    margin: 0 -4rem;
+    /* max-height을 제거해야 이미지가 잘리지 않습니다 */
+    /* max-height: clamp(3rem, 9vw, 7rem); */
+    /* 좌측 정렬 - 마진 없이 */
+    margin: 0 !important;
     display: block;
     object-fit: contain;
     /* 하단 여백은 부모의 gap으로 처리 */
     flex-shrink: 0;
-    /* 이미지가 좌우로 꽉 차도록 */
-    object-position: center;
+    /* 이미지를 좌측 정렬 */
+    object-position: left center;
+    /* 좌측 정렬 강제 */
+    align-self: flex-start;
 }
 
 /* 반응형: 작은 화면에서는 padding이 작아질 수 있으므로 */
 @media (max-width: 768px) {
     .page-main-title-image {
-        margin-left: calc(-1 * min(4rem, 8vw));
-        margin-right: calc(-1 * min(4rem, 8vw));
-        width: calc(100% + 2 * min(4rem, 8vw));
+        margin: 0 !important;
+        width: 100%;
+        object-position: left center;
+        align-self: flex-start;
     }
 }
 

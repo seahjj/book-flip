@@ -101,8 +101,8 @@ const pageData = {
     },
     'dominatio': {
         slug: 'dominatio',
-        title: 'Dominatio',
-        titleKr: '도비나티오',
+        title: 'name_svg/Dominatio.svg',
+        titleKr: '도미나티오',
         subtitle: ':지배의 악마',
         code: '00456D8',
         number: 8,
